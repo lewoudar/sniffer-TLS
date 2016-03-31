@@ -2,6 +2,7 @@
 import struct
 import binascii
 import textwrap
+import csv
 
 # Constants for pretty print
 DATA_TAB_1 = '\t '
@@ -15,11 +16,25 @@ TAB_3 = DATA_TAB_3 + '- '
 TAB_4 = DATA_TAB_4 + '- '
 TAB_5 = DATA_TAB_5 + '- '
 
+# We read the file which contains all cipher suites
+# and filled it in a dictionnary dico_suites
+# which we will use to identify all suites use in a negociation message
+dico_suites = {}
+with open('tls/parameters/tls-parameters-4.csv', newline='') as csvfile:
+	tls_suites = csv.reader(csvfile, delimiter=',')
+	for row in tls_suites:
+		hexa_suite = row[0] # for example row[0] == "0xc0,0xc34"
+		hexa_suite = hexa_suite.replace('0x', '')
+		hexa_suite = hexa_suite.replace(',', '')
+		hexa_suite = hexa_suite.lower()
+		dico_suites[hexa_suite] = row[1]
+
 
 # Returns properly formatted TLS version
 def tls_version(version):
 	bytes_str = map('{:02x}'.format, version)
 	formatted_str = ''.join(bytes_str)
+
 	if formatted_str == '0301':
 		formatted_str = 'TLS1.0 (0x' + formatted_str + ')'
 	if formatted_str == '0302':
@@ -37,6 +52,10 @@ def get_str_value(bytes_values):
 
 def get_cipher_suite(bytes_suite):
 	hex_value = binascii.hexlify(bytes_suite)
+
+	if hex_value.decode() in dico_suites:
+		return dico_suites[hex_value.decode()] + ' (0x' + hex_value.decode() + ')'
+
 	return '0x' + hex_value.decode()
 
 
