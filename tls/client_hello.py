@@ -29,5 +29,10 @@ def handle_client_hello(file, prefix, data):
 	compression_method_length, compression_method = struct.unpack('! B B', data[cursor: cursor + 2])
 	file.write(prefix + 'Compression Method Length: {}\n'.format(compression_method_length))
 	file.write(prefix + 'Compression Method: {}\n'.format(compression_method))
-
-	file.write(format_multi_line(TAB_3, data))
+	# Extensions
+	cursor += 2
+	extensions_length = struct.unpack('! H', data[cursor: cursor + 2])
+	extensions_length = extensions_length[0]
+	file.write(prefix + 'Extensions Length: {}\n'.format(extensions_length))
+	
+	file.write(format_multi_line(TAB_4, data))
