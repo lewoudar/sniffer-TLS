@@ -20,7 +20,7 @@ TAB_5 = DATA_TAB_5 + '- '
 # and filled it in a dictionnary dico_suites
 # which we will use to identify all suites use in a negociation message
 dico_suites = {}
-with open('tls/parameters/tls-parameters-4.csv', newline='') as csvfile:
+with open('tls/parameters/cipher-suites.csv', newline='') as csvfile:
 	tls_suites = csv.reader(csvfile, delimiter=',')
 	for row in tls_suites:
 		hexa_suite = row[0] # for example row[0] == "0xc0,0xc34"
