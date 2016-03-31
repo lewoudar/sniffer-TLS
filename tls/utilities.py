@@ -8,10 +8,12 @@ DATA_TAB_1 = '\t '
 DATA_TAB_2 = '\t\t '
 DATA_TAB_3 = '\t\t\t '
 DATA_TAB_4 = '\t\t\t\t '
+DATA_TAB_5 = '\t\t\t\t\t '
 TAB_1 = DATA_TAB_1 + '- '
 TAB_2 = DATA_TAB_2 + '- '
 TAB_3 = DATA_TAB_3 + '- '
 TAB_4 = DATA_TAB_4 + '- '
+TAB_5 = DATA_TAB_5 + '- '
 
 
 # Returns properly formatted TLS version
@@ -19,11 +21,11 @@ def tls_version(version):
 	bytes_str = map('{:02x}'.format, version)
 	formatted_str = ''.join(bytes_str)
 	if formatted_str == '0301':
-		formatted_str = 'TLS1.0 - 0x' + formatted_str
+		formatted_str = 'TLS1.0 (0x' + formatted_str + ')'
 	if formatted_str == '0302':
-		formatted_str = 'TLS1.1 - 0x' + formatted_str
+		formatted_str = 'TLS1.1 (0x' + formatted_str + ')'
 	if formatted_str == '0303':
-		formatted_str = 'TLS1.2 - 0x' + formatted_str
+		formatted_str = 'TLS1.2 (0x' + formatted_str + ')'
 
 	return formatted_str
 
@@ -35,6 +37,11 @@ def get_str_value(bytes_values):
 
 def get_cipher_suite(bytes_suite):
 	hex_value = binascii.hexlify(bytes_suite)
+	return '0x' + hex_value.decode()
+
+
+def get_extension_type(bytes_value):
+	hex_value = binascii.hexlify(bytes_value)
 	return '0x' + hex_value.decode()
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/python3.5
 # -*-coding:utf-8 -*
 import struct
+import binascii
 from .utilities import *
 
 """Module which handle client hello handshake protocol for TLS1.2"""
@@ -23,7 +24,7 @@ def handle_client_hello(file, prefix, data):
 	search = '! ' + '2s' * (cipher_suites_length // 2)
 	cipher_suites = struct.unpack(search, data[cursor: cursor + cipher_suites_length])
 	for cipher in cipher_suites:
-		file.write(prefix + 'Cipher Suite: {}\n'.format(get_cipher_suite(cipher)))
+		file.write(TAB_5 + 'Cipher Suite: {}\n'.format(get_cipher_suite(cipher)))
 	# Compression method
 	cursor += cipher_suites_length
 	compression_method_length, compression_method = struct.unpack('! B B', data[cursor: cursor + 2])
@@ -34,5 +35,22 @@ def handle_client_hello(file, prefix, data):
 	extensions_length = struct.unpack('! H', data[cursor: cursor + 2])
 	extensions_length = extensions_length[0]
 	file.write(prefix + 'Extensions Length: {}\n'.format(extensions_length))
-	
-	file.write(format_multi_line(TAB_4, data))
+
+	#Browse all extensions
+	cursor += 2
+	# counter to browse the extension list
+	i = 0
+	while i < extensions_length:
+		extension_type, extension_length = struct.unpack('! 2s H', data[cursor : cursor + 4])
+		file.write(TAB_5 + 'Extension Type: {}\n'.format(get_extension_type(extension_type)))
+		file.write(TAB_5 + 'Extension Length: {}\n'.format(extension_length))
+		cursor += 4
+		i += 4
+		search = '! ' + 's' * extension_length
+		extension_value = struct.unpack(search, data[cursor: cursor + extension_length])
+		cursor += extension_length
+		i += extension_length
+		file.write(TAB_5 + 'Extension Value: {}\n'.format(extension_value))
+
+
+	file.write(format_multi_line(TAB_5, data))

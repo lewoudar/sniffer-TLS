@@ -92,7 +92,7 @@ def ipv4_packet(data):
 
 # Returns properly formatted IPV4 address
 def ipv4(addr):
-    return ':'.join(map(str, addr))
+    return '.'.join(map(str, addr))
 
 
 # Unpacks TCP segment
