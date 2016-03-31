@@ -17,18 +17,28 @@ TAB_4 = DATA_TAB_4 + '- '
 TAB_5 = DATA_TAB_5 + '- '
 
 # We read the file which contains all cipher suites
-# and filled it in a dictionnary dico_suites
-# which we will use to identify all suites use in a negociation message
-dico_suites = {}
-with open('tls/parameters/cipher-suites.csv', newline='') as csvfile:
+# and filled it in a dictionnary crypto_suites
+# which we use to identify all suites use in a negociation message
+crypto_suites = {}
+with open('tls/parameters/cipher-suites.csv') as csvfile:
 	tls_suites = csv.reader(csvfile, delimiter=',')
 	for row in tls_suites:
 		hexa_suite = row[0] # for example row[0] == "0xc0,0xc34"
 		hexa_suite = hexa_suite.replace('0x', '')
 		hexa_suite = hexa_suite.replace(',', '')
 		hexa_suite = hexa_suite.lower()
-		dico_suites[hexa_suite] = row[1]
+		crypto_suites[hexa_suite] = row[1]
 
+# We read a file which contains all extensions values
+# and filled it in a dictionnary extension_names
+# which we use to identify all extensions names
+extension_names = {}
+with open('tls/parameters/tls-extension-type-values.csv', newline='') as csvfile:
+	extensions = csv.reader(csvfile, delimiter=',')
+	for row in extensions:
+		number = int(row[0])
+		name = row[1]
+		extension_names[number] = name
 
 # Returns properly formatted TLS version
 def tls_version(version):
@@ -52,16 +62,17 @@ def get_str_value(bytes_values):
 
 def get_cipher_suite(bytes_suite):
 	hex_value = binascii.hexlify(bytes_suite)
-
-	if hex_value.decode() in dico_suites:
-		return dico_suites[hex_value.decode()] + ' (0x' + hex_value.decode() + ')'
+	if hex_value.decode() in crypto_suites:
+		return crypto_suites[hex_value.decode()] + ' (0x{})'.format(hex_value.decode())
 
 	return '0x' + hex_value.decode()
 
 
-def get_extension_type(bytes_value):
-	hex_value = binascii.hexlify(bytes_value)
-	return '0x' + hex_value.decode()
+def get_extension_type(value):
+	if value in extension_names:
+		return extension_names[value] + ' ({})'.format(value)
+
+	return '{} unknow type'.format(value)
 
 
 # Formats multi-line data

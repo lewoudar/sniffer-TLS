@@ -41,7 +41,7 @@ def handle_client_hello(file, prefix, data):
 	# counter to browse the extension list
 	i = 0
 	while i < extensions_length:
-		extension_type, extension_length = struct.unpack('! 2s H', data[cursor : cursor + 4])
+		extension_type, extension_length = struct.unpack('! H H', data[cursor : cursor + 4])
 		file.write(TAB_5 + 'Extension Type: {}\n'.format(get_extension_type(extension_type)))
 		file.write(TAB_5 + 'Extension Length: {}\n'.format(extension_length))
 		cursor += 4
