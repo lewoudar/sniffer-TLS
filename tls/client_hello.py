@@ -14,8 +14,8 @@ def handle_client_hello(file, prefix, data):
 		session_id_length, cipher_suites_length = struct.unpack('! 2s 4s 28s B H', data[:cursor])
 
 	file.write(prefix + 'Max TLS Version: {},'
-						' Unix Time: {}\n'.format(tls_version(max_tls_version), get_str_value(unix_time)))
-	file.write(prefix + 'Random Bytes: {}\n'.format(get_str_value(random_value)))
+						' Unix Time: {}\n'.format(tls_version(max_tls_version), get_number(unix_time)))
+	file.write(prefix + 'Random Bytes: {}\n'.format(get_number(random_value)))
 	file.write(prefix + 'Session Id length: {},'
 						' Cipher Suites Length: {}\n'.format(session_id_length, cipher_suites_length))
 	# Course all cryptographic suites

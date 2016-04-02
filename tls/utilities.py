@@ -69,10 +69,16 @@ def tls_version(version):
 	return formatted_str
 
 
-def get_str_value(bytes_values):
+def get_number(bytes_values):
 	strings = [str(elt) for elt in bytes_values]
 	return ''.join(strings)
 
+
+def get_string(bytes_values):
+	# Each byte character x is like this 'bx' when converted to str
+	# I remove what is unnecessary
+	strings = [str(elt)[2:-1] for elt in bytes_values]
+	return ''.join(strings)
 
 def get_cipher_suite(bytes_suite):
 	hex_value = binascii.hexlify(bytes_suite)
@@ -101,6 +107,8 @@ def get_extension_informations(file, data, extension_length, extension_type):
 	if extension_type in extension_names:
 		if extension_names[extension_type] == "status_request":
 			get_status_request(file, data)
+		if extension_names[extension_type] == "server_name":
+			get_server_name(file, data)
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[extension_length])
@@ -125,3 +133,14 @@ def get_status_request(file, data):
 	file.write(TAB_6 + 'Certificate Status Type: {}\n'.format(certificate_status_type))
 	file.write(TAB_6 + 'Responder ID List Length: {}\n'.format(responder_id_list_length))
 	file.write(TAB_6 + 'Request Extensions Length: {}\n'.format(request_extensions_length))
+
+
+def get_server_name(file, data):
+	server_name_list_length = struct.unpack('! H', data[:2])[0]
+	server_name_type = struct.unpack('! B', data[2:3])[0]
+	server_name_length = struct.unpack('! H', data[3:5])[0]
+	server_name = struct.unpack('! ' + 's' * server_name_length, data[5 : 5 + server_name_length])
+	file.write(TAB_6 + 'Server Name List Length: {}\n'.format(server_name_list_length))
+	file.write(TAB_6 + 'Server Name Type: {}\n'.format(server_name_type))
+	file.write(TAB_6 + 'Server Name Length: {}\n'.format(server_name_length))
+	file.write(TAB_6 + 'Server Name: {}\n'.format(get_string(server_name)))
