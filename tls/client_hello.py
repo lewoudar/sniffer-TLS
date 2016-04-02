@@ -52,5 +52,5 @@ def handle_client_hello(file, prefix, data):
 		i += extension_length
 
 
-	file.write('Client Hello Data:\n')
+	file.write(TAB_4 + 'Client Hello Data:\n')
 	file.write(format_multi_line(TAB_5, data))
