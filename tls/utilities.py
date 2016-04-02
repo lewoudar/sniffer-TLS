@@ -70,6 +70,19 @@ ec_point_formats_list = {}
 read_csv_file(ec_point_formats_list, 'ec-point-formats.csv')
 
 
+# We read a file which contains all hash methods
+# and filled it in a dictionnary hash_methods
+# which we use to identify the hash methods used by the client
+hash_methods = {}
+read_csv_file(hash_methods, 'hash-algorithms.csv')
+
+
+# We read a file which contains all signature methods
+# and filled it in a dictionnary signature_methods
+# which we use to identify the signature methods used by the client
+signature_methods = {}
+read_csv_file(signature_methods, 'signature-algorithms.csv')
+
 
 # Returns properly formatted TLS version
 def tls_version(version):
@@ -128,6 +141,13 @@ def get_ec_point_format(value):
 	return _handle_value(value, ec_point_formats_list, 'unknow ec point format')
 
 
+def get_hash_method(value):
+	return _handle_value(value, hash_methods, 'unknow hash method')
+
+
+def get_signature_method(value):
+	return _handle_value(value, signature_methods, 'unknow signature method')
+
 def get_extension_informations(file, data, extension_length, extension_type):
 	file.write(TAB_5 + 'Extension Value:\n')
 
@@ -144,6 +164,8 @@ def get_extension_informations(file, data, extension_length, extension_type):
 			get_supported_groups(file, data)
 		if extension_names[extension_type] == "ec_point_formats":
 			get_ec_point_formats(file, data)
+		if extension_names[extension_type] == "signature_algorithms":
+			get_signature_algorithms(file, data)
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
@@ -208,3 +230,13 @@ def get_ec_point_formats(file, data):
 	ec_point_format = struct.unpack('! B', data[1:2])[0]
 	file.write(TAB_6 + 'EC Point Formats Length: {}\n'.format(ec_point_format_length))
 	file.write(TAB_6 + 'EC Point Format: {}\n'.format(get_ec_point_format(ec_point_format)))
+
+
+def get_signature_algorithms(file, data):
+	hash_algorithms_length = struct.unpack('! H', data[:2])[0]
+
+	for i in range(0, hash_algorithms_length // 2):
+		hash_method, signature_method = struct.unpack('! B B', data[2 + 2 * i : 2 + 2 * (i + 1)])
+		file.write(TAB_6 + 'Signature Hash algorithm: {} - {}\n'.format( \
+			get_hash_method(hash_method), get_signature_method(signature_method)))
+
