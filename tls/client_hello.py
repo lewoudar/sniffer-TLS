@@ -46,11 +46,11 @@ def handle_client_hello(file, prefix, data):
 		file.write(TAB_5 + 'Extension Length: {}\n'.format(extension_length))
 		cursor += 4
 		i += 4
-		search = '! ' + 's' * extension_length
-		extension_value = struct.unpack(search, data[cursor: cursor + extension_length])
+		raw_extension_value = data[cursor: cursor + extension_length]
+		get_extension_informations(file, raw_extension_value, extension_length, extension_type)
 		cursor += extension_length
 		i += extension_length
-		file.write(TAB_5 + 'Extension Value: {}\n'.format(extension_value))
 
 
+	file.write('Client Hello Data:\n')
 	file.write(format_multi_line(TAB_5, data))
