@@ -155,20 +155,25 @@ def get_extension_informations(file, data, extension_length, extension_type):
 	if extension_type in extension_names:
 		if extension_names[extension_type] == "status_request":
 			get_status_request(file, data)
-		if extension_names[extension_type] == "server_name":
+		elif extension_names[extension_type] == "server_name":
 			get_server_name(file, data)
-		if extension_names[extension_type] == "renegotiation_info":
+		elif extension_names[extension_type] == "renegotiation_info":
 			get_renegotiation_info(file, data, extension_length)
-		if extension_names[extension_type] == "SessionTicket TLS":
+		elif extension_names[extension_type] == "SessionTicket TLS":
 			get_session_ticket_tls(file, data, extension_length)
-		if extension_names[extension_type] == 'supported_groups (renamed from "elliptic_curves")':
+		elif extension_names[extension_type] == 'supported_groups (renamed from "elliptic_curves")':
 			get_supported_groups(file, data)
-		if extension_names[extension_type] == "ec_point_formats":
+		elif extension_names[extension_type] == "ec_point_formats":
 			get_ec_point_formats(file, data)
-		if extension_names[extension_type] == "signature_algorithms":
+		elif extension_names[extension_type] == "signature_algorithms":
 			get_signature_algorithms(file, data)
-		if extension_names[extension_type] == "application_layer_protocol_negotiation":
+		elif extension_names[extension_type] == "application_layer_protocol_negotiation":
 			get_alpn_infos(file, data)
+		elif extension_names[extension_type] == "padding":
+			get_padding_infos(file, data, extension_length)
+		else:
+			extension_value = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
+			file.write(TAB_6 +  '{}\n'.format(extension_value))
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
@@ -259,6 +264,8 @@ def get_alpn_infos(file, data):
 		file.write(TAB_7 + 'ALPN Protocol: {}\n'.format(get_string(alpn_protocol)))
 		cursor += alpn_string_length
 
-		
 
+def get_padding_infos(file, data, extension_length):
+	padding = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
+	file.write(TAB_6 + 'Padding: {}\n'.format(get_number(padding)))
 
