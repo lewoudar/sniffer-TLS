@@ -109,6 +109,8 @@ def get_extension_informations(file, data, extension_length, extension_type):
 			get_status_request(file, data)
 		if extension_names[extension_type] == "server_name":
 			get_server_name(file, data)
+		if extension_names[extension_type] == "renegotiation_info":
+			get_renegotiation_info(file, data)
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[extension_length])
@@ -144,3 +146,8 @@ def get_server_name(file, data):
 	file.write(TAB_6 + 'Server Name Type: {}\n'.format(server_name_type))
 	file.write(TAB_6 + 'Server Name Length: {}\n'.format(server_name_length))
 	file.write(TAB_6 + 'Server Name: {}\n'.format(get_string(server_name)))
+
+
+def get_renegotiation_info(file, data):
+	info_ext_length = struct.unpack('! B', data[:1])
+	file.write(TAB_6 + 'Renegotiation Info Extension Length: {}\n'.format(info_ext_length))
