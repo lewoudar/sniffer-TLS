@@ -16,6 +16,7 @@ TAB_3 = DATA_TAB_3 + '- '
 TAB_4 = DATA_TAB_4 + '- '
 TAB_5 = DATA_TAB_5 + '- '
 TAB_6 = '\t' + TAB_5
+TAB_7 = '\t' + TAB_6
 
 # Method which permit to read csv files and put
 # data from it in a dictionnary called "dictionnary"
@@ -166,6 +167,8 @@ def get_extension_informations(file, data, extension_length, extension_type):
 			get_ec_point_formats(file, data)
 		if extension_names[extension_type] == "signature_algorithms":
 			get_signature_algorithms(file, data)
+		if extension_names[extension_type] == "application_layer_protocol_negotiation":
+			get_alpn_infos(file, data)
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
@@ -239,4 +242,23 @@ def get_signature_algorithms(file, data):
 		hash_method, signature_method = struct.unpack('! B B', data[2 + 2 * i : 2 + 2 * (i + 1)])
 		file.write(TAB_6 + 'Signature Hash algorithm: {} - {}\n'.format( \
 			get_hash_method(hash_method), get_signature_method(signature_method)))
+
+
+def get_alpn_infos(file, data):
+	alpn_extension_length = struct.unpack('! H', data[:2])[0]
+	file.write(TAB_6 + 'ALPN Extension Length: {}\n'.format(alpn_extension_length))
+	# we remove data containing ALPN protocols into a a variable
+	alpn_data = data[2:]
+	# cursor is used to browse all ALPN protocols
+	cursor = 0
+	while cursor < alpn_extension_length:
+		alpn_string_length = struct.unpack('! B', alpn_data[cursor : cursor + 1])[0]
+		cursor += 1
+		alpn_protocol = struct.unpack('! ' + 's' * alpn_string_length, alpn_data[cursor :cursor + alpn_string_length])
+		file.write(TAB_7 + 'ALPN String Length: {}\n'.format(alpn_string_length))
+		file.write(TAB_7 + 'ALPN Protocol: {}\n'.format(get_string(alpn_protocol)))
+		cursor += alpn_string_length
+
+		
+
 
