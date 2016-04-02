@@ -20,10 +20,11 @@ TAB_6 = '\t' + TAB_5
 # Method which permit to read csv files and put
 # data from it in a dictionnary called "dictionnary"
 def read_csv_file(dictionnary, file_name):
-	with open(file_name, newline='') as csvfile:
+	path = 'tls/parameters/' + file_name
+	with open(path, newline='') as csvfile:
 		values = csv.reader(csvfile, delimiter=',')
 		for row in values:
-			if file_name == "tls/parameters/cipher-suites.csv":
+			if file_name == "cipher-suites.csv":
 				hexa_suite = row[0] # for example row[0] == "0xc0,0xc34"
 				hexa_suite = hexa_suite.replace('0x', '')
 				hexa_suite = hexa_suite.replace(',', '')
@@ -39,27 +40,35 @@ def read_csv_file(dictionnary, file_name):
 # and filled it in a dictionnary crypto_suites
 # which we use to identify all suites use in a negociation message
 crypto_suites = {}
-read_csv_file(crypto_suites, 'tls/parameters/cipher-suites.csv')
+read_csv_file(crypto_suites, 'cipher-suites.csv')
 
 # We read a file which contains all extensions values
 # and filled it in a dictionnary extension_names
 # which we use to identify all extensions names negociated
 extension_names = {}
-read_csv_file(extension_names, 'tls/parameters/tls-extension-type-values.csv')
+read_csv_file(extension_names, 'tls-extension-type-values.csv')
 
 
 # We read a file which contains all certificate status
 # and filled it in a dictionnary certificate_status_list
 # which we use to identify the certificate status used by the client
 certificate_status_list = {}
-read_csv_file(certificate_status_list, 'tls/parameters/certificate-status.csv')
+read_csv_file(certificate_status_list, 'certificate-status.csv')
 
 
 # We read a file which contains all elliptic curves
 # and filled it in a dictionnary supported_groups
 # which we use to identify the elliptic curves used by the client
 supported_groups = {}
-read_csv_file(supported_groups, 'tls/parameters/supported-groups.csv')
+read_csv_file(supported_groups, 'supported-groups.csv')
+
+
+# We read a file which contains all EC point formats
+# and filled it in a dictionnary ec_point_formats_list
+# which we use to identify the EC point formats used by the client
+ec_point_formats_list = {}
+read_csv_file(ec_point_formats_list, 'ec-point-formats.csv')
+
 
 
 # Returns properly formatted TLS version
@@ -96,23 +105,27 @@ def get_cipher_suite(bytes_suite):
 	return '0x' + hex_value.decode()
 
 
-def get_extension_type(value):
-	if value in extension_names:
-		return extension_names[value] + ' ({})'.format(value)
+def _handle_value(value, dictionnary, message):
+	if value not in dictionnary:
+		return '{} ({})'.format(message, value)
 
-	return '{} unknow type'.format(value)
+	return dictionnary[value] + ' ({})'.format(value)
+
+
+def get_extension_type(value):
+	return _handle_value(value, extension_names, 'unknow type')
+
 
 def get_certificate_status(value):
-	if value in certificate_status_list:
-		return certificate_status_list[value] + ' ({})'.format(value)
+	return _handle_value(value, certificate_status_list, 'unknow status')
 
-	return '{} unknow status'.format(value)
 
 def get_elliptic_curve(value):
-	if value in supported_groups:
-		return supported_groups[value] + ' ({})'.format(value)
+	return _handle_value(value, supported_groups, 'unknow curve')
 
-	return '{} unknow curve'.format(value)
+
+def get_ec_point_format(value):
+	return _handle_value(value, ec_point_formats_list, 'unknow ec point format')
 
 
 def get_extension_informations(file, data, extension_length, extension_type):
@@ -129,6 +142,8 @@ def get_extension_informations(file, data, extension_length, extension_type):
 			get_session_ticket_tls(file, data, extension_length)
 		if extension_names[extension_type] == 'supported_groups (renamed from "elliptic_curves")':
 			get_supported_groups(file, data)
+		if extension_names[extension_type] == "ec_point_formats":
+			get_ec_point_formats(file, data)
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
@@ -168,10 +183,8 @@ def get_server_name(file, data):
 
 
 def get_renegotiation_info(file, data, extension_length):
-	info_ext_length = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
-	if len(info_ext_length) == 1:
-		info_ext_length = info_ext_length[0]
-	file.write(TAB_6 + 'Renegotiation Info Extension Length: {}\n'.format(get_number(info_ext_length)))
+	info_ext_length = struct.unpack('! B', data[:1])[0]
+	file.write(TAB_6 + 'Renegotiation Info Extension Length: {}\n'.format(info_ext_length))
 
 
 def get_session_ticket_tls(file, data, extension_length):
@@ -188,3 +201,10 @@ def get_supported_groups(file, data):
 	for i in range(0, elliptic_curve_length // 2):
 		elliptic_curve = struct.unpack('! H', data[2 + 2 * i : 2 + 2 * (i + 1)])[0]
 		file.write(TAB_6 + 'Elliptic Curve: {}\n'.format(get_elliptic_curve(elliptic_curve)))
+
+
+def get_ec_point_formats(file, data):
+	ec_point_format_length = struct.unpack('! B', data[:1])[0]
+	ec_point_format = struct.unpack('! B', data[1:2])[0]
+	file.write(TAB_6 + 'EC Point Formats Length: {}\n'.format(ec_point_format_length))
+	file.write(TAB_6 + 'EC Point Format: {}\n'.format(get_ec_point_format(ec_point_format)))
