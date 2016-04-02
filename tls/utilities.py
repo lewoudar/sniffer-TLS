@@ -110,7 +110,9 @@ def get_extension_informations(file, data, extension_length, extension_type):
 		if extension_names[extension_type] == "server_name":
 			get_server_name(file, data)
 		if extension_names[extension_type] == "renegotiation_info":
-			get_renegotiation_info(file, data)
+			get_renegotiation_info(file, data, extension_length)
+		if extension_names[extension_type] == "SessionTicket TLS":
+			get_session_ticket_tls(file, data, extension_length)
 			
 	else:
 		extension_value = struct.unpack('! ' + 's' * extension_length, data[extension_length])
@@ -148,6 +150,16 @@ def get_server_name(file, data):
 	file.write(TAB_6 + 'Server Name: {}\n'.format(get_string(server_name)))
 
 
-def get_renegotiation_info(file, data):
-	info_ext_length = struct.unpack('! B', data[:1])
-	file.write(TAB_6 + 'Renegotiation Info Extension Length: {}\n'.format(info_ext_length))
+def get_renegotiation_info(file, data, extension_length):
+	info_ext_length = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
+	if len(info_ext_length) == 1:
+		info_ext_length = info_ext_length[0]
+	file.write(TAB_6 + 'Renegotiation Info Extension Length: {}\n'.format(get_number(info_ext_length)))
+
+
+def get_session_ticket_tls(file, data, extension_length):
+	session_ticket_data = struct.unpack('! ' + 's' * extension_length, data[:extension_length])
+	if len(session_ticket_data) > 0:
+		file.write(TAB_6 + 'Data :{}\n'.format(get_string(session_ticket_data)))
+	else:
+		file.write(TAB_6 + 'Data : None (0 byte)\n')
