@@ -33,20 +33,27 @@ def tls_packet(file, prefix, data):
 			handle_client_hello(file, prefix, data[9:])
 
 		# Server Hello
-		elif handshake_type == 2:
+		if handshake_type == 2:
 			handle_server_hello(file, prefix, data[9:])
 
 		# Certificate
-		elif handshake_type == 11:
+		if handshake_type == 11:
 			handle_certificate(file, prefix, data[9:])
 
 		# Server key exchange
-		elif handshake_type == 12:
+		if handshake_type == 12:
 			handle_server_key_exchange(file, prefix, data[9:])
 
 		# Client key exchange
-		elif handshake_type == 16:
+		if handshake_type == 16:
 			handle_client_key_exchange(file, prefix, data[9:])
 
-		elif handshake_type == 4:
+		# New Session Ticket
+		if handshake_type == 4:
 			handle_new_session_ticket(file, prefix, data[9:])
+
+	# Change Cipher Spec (20) or Encrypted Alert (21) or Application Data (23)
+	if content_type in [20, 21, 23]:
+		message = str(binascii.hexlify(data[5 : 5 + length]))[2:-1]
+		file.write(prefix + 'Message: {}\n'.format(message))
+
