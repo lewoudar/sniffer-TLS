@@ -85,6 +85,13 @@ signature_methods = {}
 read_csv_file(signature_methods, 'signature-algorithms.csv')
 
 
+# We read a file which contains all handshake types
+# and filled it in a dictionnary handshake_types
+# which we use to identify the actual hanshake type of a handshake message
+handshake_types = {}
+read_csv_file(handshake_types, 'handshake-types.csv')
+
+
 # Returns properly formatted TLS version
 def tls_version(version):
 	bytes_str = map('{:02x}'.format, version)
@@ -148,6 +155,11 @@ def get_hash_method(value):
 
 def get_signature_method(value):
 	return _handle_value(value, signature_methods, 'unknow signature method')
+
+
+def get_handshake_type(value):
+	return _handle_value(value, handshake_types, 'unknow handshake type')
+
 
 def get_extension_informations(file, data, extension_length, extension_type):
 	file.write(TAB_5 + 'Extension Value:\n')

@@ -20,7 +20,8 @@ def tls_packet(file, prefix, data):
 	if content_type == 22:
 		handshake_type, handshake_length = struct.unpack('! B I', data[5:10])
 		handshake_length >>= 8
-		file.write(prefix + 'Handshake Type: {}, Handshake Length: {}\n'.format(handshake_type, handshake_length))
+		file.write(prefix + 'Handshake Type: {}, Handshake Length: {}\n'.format( \
+			get_handshake_type(handshake_type), handshake_length))
 
 		# Client Hello
 		if handshake_type == 1:
