@@ -7,6 +7,7 @@ from .utilities import *
 from .client_hello import *
 from .server_hello import *
 from .certificate import *
+from .server_key_exchange import *
 
 
 # TLS packet
@@ -36,3 +37,7 @@ def tls_packet(file, prefix, data):
 		# Certificate
 		if handshake_type == 11:
 			handle_certificate(file, prefix, data[9:])
+
+		# Server key exchange
+		if handshake_type == 12:
+			handle_server_key_exchange(file, prefix, data[:9])

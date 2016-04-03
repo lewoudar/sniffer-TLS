@@ -92,6 +92,13 @@ handshake_types = {}
 read_csv_file(handshake_types, 'handshake-types.csv')
 
 
+# We read a file which contains all EC curves types
+# and filled it in a dictionnary ec_curves_types
+# which we use to identify the type of EC curves negociated
+ec_curves_types = {}
+read_csv_file(ec_curves_types, 'ec-curve-types.csv')
+
+
 # Returns properly formatted TLS version
 def tls_version(version):
 	bytes_str = map('{:02x}'.format, version)
@@ -159,6 +166,10 @@ def get_signature_method(value):
 
 def get_handshake_type(value):
 	return _handle_value(value, handshake_types, 'unknow handshake type')
+
+
+def get_ec_curve_type(value):
+	return _handle_value(value, ec_curves_types, 'unknowC curve type')
 
 
 def get_extension_informations(file, data, extension_length, extension_type):
