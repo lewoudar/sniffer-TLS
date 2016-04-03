@@ -20,7 +20,21 @@ def handle_server_hello(file, prefix, data):
 	# Compression Method
 	compression_method = struct.unpack('! B', data[cursor: cursor + 1])[0]
 	file.write(prefix + 'Compression Method: {}\n'.format(compression_method))
-	# Extensions
+	# Extension Length
 	cursor += 1
 	extensions_length = struct.unpack('! H', data[cursor : cursor + 2])[0]
 	file.write(prefix + 'Extensions Length: {}\n'.format(extensions_length))
+	# Extensions
+	cursor += 2
+	# counter to browse the extension list
+	i = 0
+	while i < extensions_length:
+		extension_type, extension_length = struct.unpack('! H H', data[cursor : cursor + 4])
+		file.write(TAB_5 + 'Extension Type: {}\n'.format(get_extension_type(extension_type)))
+		file.write(TAB_5 + 'Extension Length: {}\n'.format(extension_length))
+		cursor += 4
+		i += 4
+		raw_extension_value = data[cursor: cursor + extension_length]
+		get_extension_informations(file, raw_extension_value, extension_length, extension_type)
+		cursor += extension_length
+		i += extension_length
