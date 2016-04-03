@@ -8,6 +8,7 @@ from .client_hello import *
 from .server_hello import *
 from .certificate import *
 from .server_key_exchange import *
+from .client_key_exchange import *
 
 
 # TLS packet
@@ -31,13 +32,17 @@ def tls_packet(file, prefix, data):
 			handle_client_hello(file, prefix, data[9:])
 
 		# Server Hello
-		if handshake_type == 2:
+		elif handshake_type == 2:
 			handle_server_hello(file, prefix, data[9:])
 
 		# Certificate
-		if handshake_type == 11:
+		elif handshake_type == 11:
 			handle_certificate(file, prefix, data[9:])
 
 		# Server key exchange
-		if handshake_type == 12:
-			handle_server_key_exchange(file, prefix, data[:9])
+		elif handshake_type == 12:
+			handle_server_key_exchange(file, prefix, data[9:])
+
+		# Client key exchange
+		elif handshake_type == 16:
+			handle_client_key_exchange(file, prefix, data[9:])

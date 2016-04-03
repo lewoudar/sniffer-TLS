@@ -1,6 +1,7 @@
 #!/usr/bin/python3.5
 # -*-coding:utf-8 -*
 import struct
+import binascii
 from .utilities import *
 
 """Module which handle server key exchange handshake protocol for TLS1.2"""
@@ -20,8 +21,10 @@ def handle_server_key_exchange(file, prefix, data):
 	file.write(prefix + 'Public Key Length: {}\n'.format(pub_key_length))
 	# Public Key
 	cursor += 1
-	public_key = struct.unpack('! ' + 's' * pub_key_length, data[cursor : cursor + pub_key_length])
-	file.write(prefix + 'Public Key: {}\n'.format(get_string(public_key)))
+	# I use binascii.hexlify to have an hexadecimal message which is inmy mind
+	# much readable
+	public_key = str(binascii.hexlify(data[cursor : cursor + pub_key_length]))[2:-1]
+	file.write(prefix + 'Public Key: {}\n'.format(public_key))
 	# Signature Hash algorithm
 	cursor += pub_key_length
 	file.write(prefix + 'Signature Hash Algorithm:\n')
@@ -34,5 +37,5 @@ def handle_server_key_exchange(file, prefix, data):
 	file.write(prefix + 'Signature Length: {}\n'.format(signature_length))
 	# Signature
 	cursor += 2
-	signature = struct.unpack('! ' + 's' * signature_length, data[cursor : cursor + signature_length])
-	file.write(prefix + 'Signature: {}\n'.format(get_string(signature)))
+	signature = str(binascii.hexlify(data[cursor : cursor + signature_length]))[2:-1]
+	file.write(prefix + 'Public Key: {}\n'.format(signature))
