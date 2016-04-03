@@ -1,7 +1,6 @@
 #!/usr/bin/python3.5
 # -*-coding:utf-8 -*
 import struct
-import binascii
 from .utilities import *
 
 """Module which handle client key exchange handshake protocol for TLS1.2"""
