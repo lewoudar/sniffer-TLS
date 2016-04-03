@@ -99,6 +99,13 @@ ec_curves_types = {}
 read_csv_file(ec_curves_types, 'ec-curve-types.csv')
 
 
+# We read a file which contains all content types
+# and filled it in a dictionnary content_types
+# which we use to identify the content type of a message
+content_types = {}
+read_csv_file(content_types, 'content-types.csv')
+
+
 # Returns properly formatted TLS version
 def tls_version(version):
 	bytes_str = map('{:02x}'.format, version)
@@ -169,7 +176,11 @@ def get_handshake_type(value):
 
 
 def get_ec_curve_type(value):
-	return _handle_value(value, ec_curves_types, 'unknowC curve type')
+	return _handle_value(value, ec_curves_types, 'unknow curve type')
+
+
+def get_content_type(value):
+	return _handle_value(value, content_types, 'unknow content type')
 
 
 def get_extension_informations(file, data, extension_length, extension_type):

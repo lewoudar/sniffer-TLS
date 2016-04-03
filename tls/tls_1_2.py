@@ -19,7 +19,7 @@ def tls_packet(file, prefix, data):
 	file.write(prefix + 'TLS packet:\n')
 	prefix = '\t' + prefix
 	file.write(prefix + 'Content Type: {}, TLS Version: {},'
-						' Length: {}\n'.format(content_type, tls_version(min_tls_version), length))
+						' Length: {}\n'.format(get_content_type(content_type), tls_version(min_tls_version), length))
 
 	# Handshake protocol
 	if content_type == 22:
