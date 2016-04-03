@@ -6,6 +6,7 @@ import struct
 from .utilities import *
 from .client_hello import *
 from .server_hello import *
+from .certificate import *
 
 
 # TLS packet
@@ -32,3 +33,6 @@ def tls_packet(file, prefix, data):
 		if handshake_type == 2:
 			handle_server_hello(file, prefix, data[9:])
 
+		# Certificate
+		if handshake_type == 11:
+			handle_certificate(file, prefix, data[9:])
